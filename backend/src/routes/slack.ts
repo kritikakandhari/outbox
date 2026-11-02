@@ -55,4 +55,18 @@ router.post("/disconnect", requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// Manual webhook connect option (in addition to OAuth) for easy demo testing
+router.post("/webhook", requireAuth, async (req, res) => {
+  const { webhookUrl, channel, teamName } = req.body;
+  if (!webhookUrl || typeof webhookUrl !== "string") {
+    return res.status(400).json({ error: "Invalid webhook URL" });
+  }
+  await pool.query(
+    `INSERT INTO slack_connections (user_id, webhook_url, team_name, channel) VALUES (?,?,?,?)
+     ON DUPLICATE KEY UPDATE webhook_url=VALUES(webhook_url), team_name=VALUES(team_name), channel=VALUES(channel)`,
+    [userOf(req).id, webhookUrl, teamName ?? "Slack Workspace", channel ?? "#general"]
+  );
+  res.json({ ok: true });
+});
+
 export default router;

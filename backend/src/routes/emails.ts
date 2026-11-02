@@ -72,15 +72,25 @@ router.get("/", async (req, res) => {
 
   let idFilter: number[] | null = null;
   if (q) {
-    try { idFilter = (await searchEmails(user.id, q)).map((d) => d.id); } catch { idFilter = null; }
+    try {
+      const results = await searchEmails(user.id, q);
+      idFilter = results.map((d) => d.id);
+    } catch {
+      idFilter = null;
+    }
   }
 
   const params: any[] = [user.id, statuses];
   let sql = `SELECT id, to_email AS \`to\`, subject, scheduled_at AS scheduledAt, sent_at AS sentAt, status, preview_url AS previewUrl
              FROM emails WHERE user_id=? AND status IN (?)`;
-  if (idFilter) {
+  if (idFilter !== null) {
     if (!idFilter.length) return res.json([]);
-    sql += " AND id IN (?)"; params.push(idFilter);
+    sql += " AND id IN (?)";
+    params.push(idFilter);
+  } else if (q) {
+    sql += " AND (subject LIKE ? OR to_email LIKE ? OR body LIKE ?)";
+    const pattern = `%${q}%`;
+    params.push(pattern, pattern, pattern);
   }
   sql += view === "sent" ? " ORDER BY sent_at DESC, id DESC LIMIT 500" : " ORDER BY scheduled_at ASC LIMIT 500";
   const [rows] = await pool.query<RowDataPacket[]>(sql, params);

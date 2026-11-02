@@ -86,7 +86,7 @@ export function startEmailWorker() {
 
   // Mark failed only after the last retry; earlier attempts stay 'scheduled' and are retried with backoff.
   worker.on("failed", async (job, err) => {
-    if (!job) return;
+    if (!job || err.name === "DelayedError") return;
     if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
       await pool.query("UPDATE emails SET status='failed', error=? WHERE id=?", [err.message, job.data.emailId]);
       await updateStatus(job.data.emailId, "failed");

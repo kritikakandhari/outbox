@@ -26,4 +26,6 @@ export const api = {
     request<{ batchId: string; count: number }>("/api/emails/schedule", { method: "POST", body: JSON.stringify(input) }),
   slackStatus: () => request<SlackStatus>("/api/slack/status"),
   slackDisconnect: () => request<{ ok: true }>("/api/slack/disconnect", { method: "POST" }),
+  slackConnectWebhook: (webhookUrl: string) =>
+    request<{ ok: true }>("/api/slack/webhook", { method: "POST", body: JSON.stringify({ webhookUrl }) }),
 };
