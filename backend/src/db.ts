@@ -1,11 +1,13 @@
 import mysql from "mysql2/promise";
 import { config } from "./config";
 
-export const pool = mysql.createPool({ ...config.db, connectionLimit: 20, dateStrings: false });
+const ssl = process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined;
+
+export const pool = mysql.createPool({ ...config.db, ssl, connectionLimit: 20, dateStrings: false });
 
 export async function migrate() {
   // Create DB if missing
-  const root = await mysql.createConnection({ ...config.db, database: undefined });
+  const root = await mysql.createConnection({ ...config.db, ssl, database: undefined });
   await root.query(`CREATE DATABASE IF NOT EXISTS \`${config.db.database}\``);
   await root.end();
 
