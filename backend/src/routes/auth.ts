@@ -22,12 +22,10 @@ function getFrontendUrl(req: Request): string {
   if (config.frontendUrl && config.frontendUrl !== "http://localhost:5173") {
     return config.frontendUrl;
   }
-  const referer = req.headers.referer;
-  if (referer) {
-    try {
-      const u = new URL(String(referer));
-      return `${u.protocol}//${u.host}`;
-    } catch {}
+  const host = req.get("host") || "";
+  const fwdHost = String(req.headers["x-forwarded-host"] || "");
+  if (host.includes("localhost") || fwdHost.includes("localhost")) {
+    return "http://localhost:5173";
   }
   return "https://outbox-ebon.vercel.app";
 }
