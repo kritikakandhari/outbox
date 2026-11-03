@@ -2,6 +2,13 @@
 
 Schedules emails through an API/dashboard and sends them at the right time with **BullMQ delayed jobs + Redis** (no cron), through **Ethereal SMTP**. Emails live in **MySQL**, are searchable in **Elasticsearch**, and the queue is visible in a live **Bull Board** dashboard.
 
+## 🌐 Live Hosted Deployment
+- **Frontend Dashboard**: [https://outbox-ebon.vercel.app/](https://outbox-ebon.vercel.app/)
+- **Backend API**: [https://outbox-ky91.onrender.com](https://outbox-ky91.onrender.com)
+- **Live BullMQ Queue Monitor**: [https://outbox-ky91.onrender.com/admin/queues](https://outbox-ky91.onrender.com/admin/queues)
+
+*(Includes a **One-Click Demo Login** on the login screen for instant evaluation without requiring Google Cloud OAuth credentials).*
+
 ## Run it
 
 Prerequisites: Node 20+, Docker.
