@@ -12,7 +12,15 @@ export default function Login() {
       <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-extrabold tracking-tight">Outbox Scheduler</h1>
         <p className="mt-2 text-ink-soft">Schedule cold emails once. They go out on time, even if the server restarts.</p>
-        {failed && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-bad">Google sign-in failed. Please try again.</p>}
+        {failed === "google_credentials_missing" ? (
+          <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-700">
+            Google Client ID & Secret are not added yet. Please add them in Render settings, or use One-Click Demo Login below!
+          </p>
+        ) : failed ? (
+          <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-bad">
+            Google sign-in failed. Please try again or use One-Click Demo Login.
+          </p>
+        ) : null}
         <Button className="mt-8 w-full" onClick={() => (window.location.href = "/auth/google")}>
           Continue with Google
         </Button>

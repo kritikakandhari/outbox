@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { config } from "../config";
 import { pool } from "../db";
@@ -6,18 +6,48 @@ import { requireAuth, signToken, userOf } from "../auth";
 import type { RowDataPacket } from "mysql2";
 
 const router = Router();
-const client = new OAuth2Client(
-  config.google.clientId,
-  config.google.clientSecret,
-  `${config.backendUrl}/auth/google/callback`
-);
 
-router.get("/google", (_req, res) => {
-  const url = client.generateAuthUrl({ scope: ["openid", "email", "profile"], prompt: "select_account" });
+function getCallbackUrl(req: Request): string {
+  const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+  const host = req.headers["x-forwarded-host"] || req.get("host") || "outbox-ky91.onrender.com";
+  // If on localhost, use localhost callback
+  if (String(host).includes("localhost")) {
+    return `http://localhost:${config.port}/auth/google/callback`;
+  }
+  return `${proto}://${host}/auth/google/callback`;
+}
+
+function getFrontendUrl(req: Request): string {
+  if (config.frontendUrl && config.frontendUrl !== "http://localhost:5173") {
+    return config.frontendUrl;
+  }
+  const referer = req.headers.referer;
+  if (referer) {
+    try {
+      const u = new URL(String(referer));
+      return `${u.protocol}//${u.host}`;
+    } catch {}
+  }
+  return "https://outbox-ebon.vercel.app";
+}
+
+router.get("/google", (req, res) => {
+  if (!config.google.clientId || !config.google.clientSecret) {
+    console.warn("[auth] GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing.");
+    return res.redirect(`${getFrontendUrl(req)}/?error=google_credentials_missing`);
+  }
+  const callbackUrl = getCallbackUrl(req);
+  const client = new OAuth2Client(config.google.clientId, config.google.clientSecret, callbackUrl);
+  const url = client.generateAuthUrl({
+    scope: ["openid", "email", "profile"],
+    prompt: "select_account",
+    redirect_uri: callbackUrl,
+  });
   res.redirect(url);
 });
 
-router.get("/dev-login", async (_req, res) => {
+router.get("/dev-login", async (req, res) => {
+  const frontendBase = getFrontendUrl(req);
   try {
     const demoEmail = "demo@reachinbox.ai";
     const demoName = "ReachInbox Demo";
@@ -29,19 +59,23 @@ router.get("/dev-login", async (_req, res) => {
     const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM users WHERE google_id=?", ["demo-user-id"]);
     const u = rows[0];
     const token = signToken({ id: u.id, email: u.email, name: u.name, avatar: u.avatar });
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax", maxAge: 7 * 86400_000 });
-    const redirectBase = config.frontendUrl && config.frontendUrl !== "http://localhost:5173" ? config.frontendUrl : "";
-    res.redirect(`${redirectBase}/dashboard`);
+    res.cookie("token", token, { httpOnly: true, sameSite: "none", secure: true, maxAge: 7 * 86400_000 });
+    res.redirect(`${frontendBase}/dashboard?token=${token}`);
   } catch (e) {
     console.error("[dev-auth]", e);
-    const redirectBase = config.frontendUrl && config.frontendUrl !== "http://localhost:5173" ? config.frontendUrl : "";
-    res.redirect(`${redirectBase}/?error=dev_login_failed`);
+    res.redirect(`${frontendBase}/?error=dev_login_failed`);
   }
 });
 
 router.get("/google/callback", async (req, res) => {
+  const frontendBase = getFrontendUrl(req);
   try {
-    const { tokens } = await client.getToken(String(req.query.code));
+    const callbackUrl = getCallbackUrl(req);
+    const client = new OAuth2Client(config.google.clientId, config.google.clientSecret, callbackUrl);
+    const { tokens } = await client.getToken({
+      code: String(req.query.code),
+      redirect_uri: callbackUrl,
+    });
     const ticket = await client.verifyIdToken({ idToken: tokens.id_token!, audience: config.google.clientId });
     const p = ticket.getPayload()!;
     await pool.query(
@@ -52,11 +86,11 @@ router.get("/google/callback", async (req, res) => {
     const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM users WHERE google_id=?", [p.sub]);
     const u = rows[0];
     const token = signToken({ id: u.id, email: u.email, name: u.name, avatar: u.avatar });
-    res.cookie("token", token, { httpOnly: true, sameSite: "lax", maxAge: 7 * 86400_000 });
-    res.redirect(`${config.frontendUrl}/dashboard`);
+    res.cookie("token", token, { httpOnly: true, sameSite: "none", secure: true, maxAge: 7 * 86400_000 });
+    res.redirect(`${frontendBase}/dashboard?token=${token}`);
   } catch (e) {
     console.error("[auth]", e);
-    res.redirect(`${config.frontendUrl}/?error=login_failed`);
+    res.redirect(`${frontendBase}/?error=login_failed`);
   }
 });
 
