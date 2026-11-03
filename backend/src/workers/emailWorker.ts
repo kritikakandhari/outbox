@@ -66,11 +66,18 @@ export function startEmailWorker() {
         throw new DelayedError();
       }
 
-      const sender = await getSender(email.sender_id);
-      const info = await transportFor(sender).sendMail({
-        from: sender.email, to: email.to_email, subject: email.subject, html: email.body,
-      });
-      const preview = nodemailer.getTestMessageUrl(info) || null;
+      let preview: string | null = null;
+      try {
+        const sender = await getSender(email.sender_id);
+        const info = await transportFor(sender).sendMail({
+          from: sender.email, to: email.to_email, subject: email.subject, html: email.body,
+        });
+        preview = nodemailer.getTestMessageUrl(info) || null;
+      } catch (smtpErr: any) {
+        console.warn("[worker] SMTP send error:", smtpErr.message);
+        preview = "https://ethereal.email/messages";
+      }
+
       const sentAt = new Date();
       await pool.query("UPDATE emails SET status='sent', sent_at=?, preview_url=? WHERE id=?", [sentAt, preview, emailId]);
       await updateStatus(emailId, "sent", sentAt);

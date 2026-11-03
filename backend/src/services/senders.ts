@@ -28,7 +28,11 @@ export async function getSender(id: number) {
 
 export function transportFor(s: Sender) {
   return nodemailer.createTransport({
-    host: s.host, port: s.port, secure: false,
+    host: s.host,
+    port: 2525, // Port 2525 bypasses cloud firewalls (e.g. Render Free Tier blocks 587)
+    secure: false,
     auth: { user: s.smtp_user, pass: s.smtp_pass },
+    connectionTimeout: 6000,
+    socketTimeout: 6000,
   });
 }
