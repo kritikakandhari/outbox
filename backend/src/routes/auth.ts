@@ -30,10 +30,12 @@ router.get("/dev-login", async (_req, res) => {
     const u = rows[0];
     const token = signToken({ id: u.id, email: u.email, name: u.name, avatar: u.avatar });
     res.cookie("token", token, { httpOnly: true, sameSite: "lax", maxAge: 7 * 86400_000 });
-    res.redirect(`${config.frontendUrl}/dashboard`);
+    const redirectBase = config.frontendUrl && config.frontendUrl !== "http://localhost:5173" ? config.frontendUrl : "";
+    res.redirect(`${redirectBase}/dashboard`);
   } catch (e) {
     console.error("[dev-auth]", e);
-    res.redirect(`${config.frontendUrl}/?error=dev_login_failed`);
+    const redirectBase = config.frontendUrl && config.frontendUrl !== "http://localhost:5173" ? config.frontendUrl : "";
+    res.redirect(`${redirectBase}/?error=dev_login_failed`);
   }
 });
 

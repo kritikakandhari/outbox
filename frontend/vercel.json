@@ -1,5 +1,8 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://outbox-ky91.onrender.com/api/$1" },
+    { "source": "/auth/(.*)", "destination": "https://outbox-ky91.onrender.com/auth/$1" },
+    { "source": "/admin/(.*)", "destination": "https://outbox-ky91.onrender.com/admin/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
