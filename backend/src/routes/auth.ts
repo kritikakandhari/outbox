@@ -8,13 +8,14 @@ import type { RowDataPacket } from "mysql2";
 const router = Router();
 
 function getCallbackUrl(req: Request): string {
-  const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
-  const host = req.headers["x-forwarded-host"] || req.get("host") || "outbox-ky91.onrender.com";
-  // If on localhost, use localhost callback
-  if (String(host).includes("localhost")) {
+  const host = req.get("host") || "";
+  if (host.includes("localhost") || String(req.headers["x-forwarded-host"]).includes("localhost")) {
     return `http://localhost:${config.port}/auth/google/callback`;
   }
-  return `${proto}://${host}/auth/google/callback`;
+  if (config.backendUrl && config.backendUrl !== "http://localhost:4000") {
+    return `${config.backendUrl}/auth/google/callback`;
+  }
+  return "https://outbox-ky91.onrender.com/auth/google/callback";
 }
 
 function getFrontendUrl(req: Request): string {
