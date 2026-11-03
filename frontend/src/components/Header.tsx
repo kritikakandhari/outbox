@@ -8,7 +8,10 @@ export function Header() {
   return (
     <header className="border-b border-line bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <p className="text-lg font-extrabold tracking-tight">Outbox Scheduler</p>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.jpg" alt="Outbox" className="size-7 rounded-md object-contain" />
+          <p className="text-lg font-extrabold tracking-tight">Outbox Scheduler</p>
+        </div>
         <div className="flex items-center gap-3">
           <SlackButton />
           <a href="/admin/queues" target="_blank" rel="noreferrer" className="hidden text-sm font-semibold text-ink-soft hover:text-ink sm:block">Queue monitor</a>

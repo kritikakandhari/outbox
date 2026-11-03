@@ -10,6 +10,10 @@ export default function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-sm">
+        <div className="mb-4 flex items-center gap-3">
+          <img src="/logo.jpg" alt="Outbox" className="size-10 rounded-lg object-contain shadow-xs" />
+          <span className="text-sm font-bold uppercase tracking-wider text-ink-soft">Outbox Labs</span>
+        </div>
         <h1 className="text-3xl font-extrabold tracking-tight">Outbox Scheduler</h1>
         <p className="mt-2 text-ink-soft">Schedule cold emails once. They go out on time, even if the server restarts.</p>
         {failed === "google_credentials_missing" ? (
