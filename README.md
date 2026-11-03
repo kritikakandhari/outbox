@@ -1,6 +1,6 @@
-# Email Job Scheduler (ReachInbox-style)
+# Outbox Scheduler — [Outbox Labs](https://www.outboxlabs.ai/)
 
-Schedules emails through an API/dashboard and sends them at the right time with **BullMQ delayed jobs + Redis** (no cron), through **Ethereal SMTP**. Emails live in **MySQL**, are searchable in **Elasticsearch**, and the queue is visible in a live **Bull Board** dashboard.
+Full-Stack Email Job Scheduler built for **[Outbox Labs](https://www.outboxlabs.ai/)**. Schedules emails through a clean dashboard and sends them on time with **BullMQ delayed jobs + Redis** (no cron), through **Ethereal SMTP**. Emails live in **MySQL** (TiDB Cloud Serverless), are searchable in **Elasticsearch**, and queue execution is monitored live via **Bull Board**.
 
 ## 🌐 Live Hosted Deployment
 - **Frontend Dashboard**: [https://outbox-ebon.vercel.app/](https://outbox-ebon.vercel.app/)

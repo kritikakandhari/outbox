@@ -10,11 +10,11 @@ export default function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-sm">
-        <div className="mb-4 flex items-center gap-3">
-          <img src="/logo.jpg" alt="Outbox" className="size-10 rounded-lg object-contain shadow-xs" />
-          <span className="text-sm font-bold uppercase tracking-wider text-ink-soft">Outbox Labs</span>
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight">Outbox Scheduler</h1>
+        <a href="https://www.outboxlabs.ai/" target="_blank" rel="noreferrer" className="mb-4 inline-flex items-center gap-3 transition-opacity hover:opacity-80">
+          <img src="/logo.jpg" alt="Outbox Labs" className="size-10 rounded-lg object-contain shadow-xs" />
+          <span className="text-base font-bold tracking-tight text-ink">Outbox Labs</span>
+        </a>
+        <h1 className="text-3xl font-extrabold tracking-tight">Email Scheduler</h1>
         <p className="mt-2 text-ink-soft">Schedule cold emails once. They go out on time, even if the server restarts.</p>
         {failed === "google_credentials_missing" ? (
           <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-700">

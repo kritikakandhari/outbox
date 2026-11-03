@@ -49,8 +49,8 @@ router.get("/google", (req, res) => {
 router.get("/dev-login", async (req, res) => {
   const frontendBase = getFrontendUrl(req);
   try {
-    const demoEmail = "demo@reachinbox.ai";
-    const demoName = "ReachInbox Demo";
+    const demoEmail = "demo@outboxlabs.ai";
+    const demoName = "Outbox Labs Demo";
     await pool.query(
       `INSERT INTO users (google_id, email, name, avatar) VALUES (?,?,?,?)
        ON DUPLICATE KEY UPDATE email=VALUES(email), name=VALUES(name)`,
